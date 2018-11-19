@@ -79,13 +79,17 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="tystudy的个人博客">
-<meta property="og:url" content="http://yoursite.com/index.html">
+<meta name="description" content="CSRF全称Cross Site Request Forgery(跨站请求伪造) 某些恶意网站上包含链接、表单按钮或者JavaScript，它们会利用你在本地的cookie在你的网站上完成某些操作，这就是跨站攻击。 我们要确保请求是我们发的，不是其他人伪造的，在浏览器中写入csrf_token的cookie，在POST，PUT，DELETE请求的时候在请求体中带上csrf _token的值(jso">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CSRF防护原理">
+<meta property="og:url" content="http://yoursite.com/2018/10/19/CSRF防护原理/index.html">
 <meta property="og:site_name" content="tystudy的个人博客">
+<meta property="og:description" content="CSRF全称Cross Site Request Forgery(跨站请求伪造) 某些恶意网站上包含链接、表单按钮或者JavaScript，它们会利用你在本地的cookie在你的网站上完成某些操作，这就是跨站攻击。 我们要确保请求是我们发的，不是其他人伪造的，在浏览器中写入csrf_token的cookie，在POST，PUT，DELETE请求的时候在请求体中带上csrf _token的值(jso">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-11-19T03:43:52.149Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="tystudy的个人博客">
+<meta name="twitter:title" content="CSRF防护原理">
+<meta name="twitter:description" content="CSRF全称Cross Site Request Forgery(跨站请求伪造) 某些恶意网站上包含链接、表单按钮或者JavaScript，它们会利用你在本地的cookie在你的网站上完成某些操作，这就是跨站攻击。 我们要确保请求是我们发的，不是其他人伪造的，在浏览器中写入csrf_token的cookie，在POST，PUT，DELETE请求的时候在请求体中带上csrf _token的值(jso">
 
 
 
@@ -115,13 +119,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/">
+  <link rel="canonical" href="http://yoursite.com/2018/10/19/CSRF防护原理/">
 
 
 
 
 
-  <title>tystudy的个人博客</title>
+  <title>CSRF防护原理 | tystudy的个人博客</title>
   
 
 
@@ -140,8 +144,7 @@
     
   
 
-  <div class="container sidebar-position-left 
-  page-home">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
@@ -214,274 +217,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
+
+  <div id="posts" class="posts-expand">
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/16/Python垃圾回收机制/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="tystudy">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="tystudy的个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/11/16/Python垃圾回收机制/" itemprop="url">Python垃圾回收机制</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-16T11:24:37+08:00">
-                2018-11-16
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-          python是采用以引用计数为主，标记和清除,分代收集(隔代回收,来解决循环引用的问题)的策略新创建的对象都会添加到0代链表上
-Garbage collection(GC)
-为新生成的对象分配内存
-识别那些垃圾对象
-从垃圾对象那回收内存
-
-引用计数机制：python里每一个东西都是对象，它们的核心就是一个struct：PyObject
-1234typedef struct_object &#123
-          ...
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/11/16/Python垃圾回收机制/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/15/sqlalchemy模型转字典的工具/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="tystudy">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="tystudy的个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/11/15/sqlalchemy模型转字典的工具/" itemprop="url">sqlalchemy模型转字典的工具</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-15T18:06:02+08:00">
-                2018-11-15
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-          GitHub：https://github.com/persistty/sqlalchemy-model-convert
-SqlalchemyModelConvert
-使用简单方便的模型转字典模块(Python3)
-模型对象转换成字典，列表模型对象转换成列表
-支持关联模型转换，不需要显示的字段，字段值的修改
-
-Examples【示例】定义的模型类，继承ModelConvert12345678910
-          ...
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/11/15/sqlalchemy模型转字典的工具/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
 
   
 
@@ -511,9 +249,7 @@ Examples【示例】定义的模型类，继承ModelConvert12345678910
 
         
         
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/10/19/CSRF防护原理/" itemprop="url">CSRF防护原理</a></h1>
+          <h1 class="post-title" itemprop="name headline">CSRF防护原理</h1>
         
 
         <div class="post-meta">
@@ -563,20 +299,25 @@ Examples【示例】定义的模型类，继承ModelConvert12345678910
       
 
       
-        
-          
-          CSRF全称Cross Site Request Forgery(跨站请求伪造)
-某些恶意网站上包含链接、表单按钮或者JavaScript，它们会利用你在本地的cookie在你的网站上完成某些操作，这就是跨站攻击。
-我们要确保请求是我们发的，不是其他人伪造的，在浏览器中写入csrf_token的cookie，在POST，PUT，DELETE请求的时候在请求体中带上csrf _token的值(jso
-          ...
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/10/19/CSRF防护原理/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
+        <p>CSRF全称Cross Site Request Forgery(跨站请求伪造)</p>
+<p>某些恶意网站上包含链接、表单按钮或者JavaScript，它们会利用你在本地的cookie在你的网站上完成某些操作，这就是跨站攻击。</p>
+<p>我们要确保请求是我们发的，不是其他人伪造的，在浏览器中写入csrf_token的cookie，在POST，PUT，DELETE请求的时候在请求体中带上csrf _token的值(json格式数据在请求头设置X-CSRFToken)，进行对比，成功表示我们自己的请求，否则是伪造请求。</p>
+<p>在响应头中设置的csrf_token的值：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Set-Cookie: csrf_token=ImMyNTAzNTFiZWRmZjE3YjczMWYzODA0NmQwOGY5MmY3NmY2ZmRkMWQi.DtO3WQ.M9Ipyhch8kuq_0c-x-Gh95Jzh1k; Path=/</span><br></pre></td></tr></table></figure>
+<ol>
+<li><p>使用表单格式发送数据，在请求体中设置csrf_token参数和值就可以了</p>
+</li>
+<li><p>使用json格式发送请求的时候，在请求头中设置X-CSRFToken的值：</p>
+</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">X-CSRFToken: ImMyNTAzNTFiZWRmZjE3YjczMWYzODA0NmQwOGY5MmY3NmY2ZmRkMWQi.DtO3WQ.M9Ipyhch8kuq_0c-x-Gh95Jzh1k</span><br></pre></td></tr></table></figure>
+<p>js获取本地的cookie:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getCookie</span>(<span class="params">name</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> r = <span class="built_in">document</span>.cookie.match(<span class="string">"\\b"</span> + name + <span class="string">"=([^;]*)\\b"</span>);</span><br><span class="line">    <span class="keyword">return</span> r ? r[<span class="number">1</span>] : <span class="literal">undefined</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>ajax发送请求X-CSRFToken的设置：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$.ajax(&#123;</span><br><span class="line">    url:<span class="string">"xxx"</span>,</span><br><span class="line">    type:<span class="string">"POST"</span>,</span><br><span class="line">    data: jsonData,</span><br><span class="line">    contentType: <span class="string">"application/json"</span>,</span><br><span class="line">    dataType: <span class="string">"json"</span>,</span><br><span class="line">    headers:&#123;</span><br><span class="line">        <span class="string">"X-CSRFToken"</span>:getCookie(<span class="string">"csrf_token"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p><strong>浏览器有一个很重要的概念——同源策略(Same-Origin Policy)。 所谓同源是指，域名，协议，端口相同。 不同源的客户端脚本(javascript、ActionScript)在没明确授权的情况下，不能读写对方的资源。</strong></p>
+<p>我们可以使用js获取自己站点的cookie，由于第三方站点没有访问cookie数据的权限（同源策略），所以我们可以要求每个请求包括一个特定的参数值作为令牌来匹配存储在cookie中的对应值，如果两者匹配，我们的应用认定请求有效。而第三方站点无法在请求中包含令牌cookie值，这就有效地防止了不可信网站发送未授权的请求。</p>
+
       
     </div>
     
@@ -593,12 +334,28 @@ Examples【示例】定义的模型类，继承ModelConvert12345678910
       
 
       
+      
+      
 
       
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/11/15/sqlalchemy模型转字典的工具/" rel="prev" title="sqlalchemy模型转字典的工具">
+                sqlalchemy模型转字典的工具 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
 
       
-      
-        <div class="post-eof"></div>
       
     </footer>
   </div>
@@ -608,10 +365,11 @@ Examples【示例】定义的模型类，继承ModelConvert12345678910
   </article>
 
 
-    
-  </section>
 
-  
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -619,6 +377,10 @@ Examples【示例】定义的模型类，继承ModelConvert12345678910
 
 
           
+
+  
+
+
 
         </div>
         
@@ -811,6 +573,10 @@ Examples【示例】定义的模型类，继承ModelConvert12345678910
   
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 
