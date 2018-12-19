@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="构建路由规则一个 web 应用不同的路径会有不同的处理函数，路由就是根据请求的 URL 找到对应处理函数的过程。 在执行查找之前，需要有一个规则列表，它存储了 url 和处理函数的对应关系。最容易想到的解决方案就是定义一个字典，key 是 url，value 是对应的处理函数。如果 url 都是静态的（url 路径都是实现确定的，没有变量和正则匹配），那么路由的过程就是从字典中通过 url 这个">
+<meta property="og:type" content="article">
+<meta property="og:title" content="flask源码分析2之路由">
+<meta property="og:url" content="http://yoursite.com/2018/09/21/flask源码分析2之路由/index.html">
+<meta property="og:site_name" content="tystudy的个人博客">
+<meta property="og:description" content="构建路由规则一个 web 应用不同的路径会有不同的处理函数，路由就是根据请求的 URL 找到对应处理函数的过程。 在执行查找之前，需要有一个规则列表，它存储了 url 和处理函数的对应关系。最容易想到的解决方案就是定义一个字典，key 是 url，value 是对应的处理函数。如果 url 都是静态的（url 路径都是实现确定的，没有变量和正则匹配），那么路由的过程就是从字典中通过 url 这个">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-11-21T08:14:39.202Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="flask源码分析2之路由">
+<meta name="twitter:description" content="构建路由规则一个 web 应用不同的路径会有不同的处理函数，路由就是根据请求的 URL 找到对应处理函数的过程。 在执行查找之前，需要有一个规则列表，它存储了 url 和处理函数的对应关系。最容易想到的解决方案就是定义一个字典，key 是 url，value 是对应的处理函数。如果 url 都是静态的（url 路径都是实现确定的，没有变量和正则匹配），那么路由的过程就是从字典中通过 url 这个">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/09/21/flask源码分析2之路由/">
+
+
+
+
+
+  <title>flask源码分析2之路由 | tystudy的个人博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">tystudy的个人博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/21/flask源码分析2之路由/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="tystudy">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="tystudy的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">flask源码分析2之路由</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-21T15:56:43+08:00">
+                2018-09-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="构建路由规则"><a href="#构建路由规则" class="headerlink" title="构建路由规则"></a>构建路由规则</h3><p>一个 web 应用不同的路径会有不同的处理函数，路由就是根据请求的 URL 找到对应处理函数的过程。</p>
+<p>在执行查找之前，需要有一个规则列表，它存储了 url 和处理函数的对应关系。最容易想到的解决方案就是定义一个字典，key 是 url，value 是对应的处理函数。如果 url 都是静态的（url 路径都是实现确定的，没有变量和正则匹配），那么路由的过程就是从字典中通过 url 这个 key ，找到并返回对应的 value；如果没有找到，就报 404 错误。而对于动态路由，还需要更复杂的匹配逻辑。flask 中的路由过程是这样的吗？这篇文章就来分析分析。</p>
+<p><strong>在分析路由匹配过程之前，我们先来看看 flask 中，构建这个路由规则的两种方法：</strong></p>
+<ol>
+<li>通过 <a href="mailto:`@app.route" target="_blank" rel="noopener">`@app.route</a>()` decorator，比如文章开头给出的 hello world 例子</li>
+<li>通过 app.add_url_rule，这个方法的签名为 add_url_rule(self, rule, endpoint=None, view_func=None, **options)，参数的含义如下：<ul>
+<li>rule： url 规则字符串，可以是静态的 /path，也可以包含 /</li>
+<li>endpoint：要注册规则的 endpoint，默认是 view_func 的名字</li>
+<li>view_func：对应 url 的处理函数，也被称为视图函数</li>
+</ul>
+</li>
+</ol>
+<p>这两种方法是等价的，也就是说：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@app.route('/')</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">hello</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">"hello, world!"</span></span><br></pre></td></tr></table></figure>
+<p>也可以写成</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">hello</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">"hello, world!"</span></span><br><span class="line"></span><br><span class="line">app.add_url_rule(<span class="string">'/'</span>, <span class="string">'hello'</span>, hello)</span><br></pre></td></tr></table></figure>
+<p><strong>NOTE</strong>: 其实，还有一种方法来构建路由规则——直接操作 app.url_map 这个数据结构。不过这种方法并不是很常用，因此就不展开了。</p>
+<p>注册路由规则的时候，flask 内部做了哪些东西呢？我们来看看 route 方法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">route</span><span class="params">(self, rule, **options)</span>:</span></span><br><span class="line">    <span class="string">"""A decorator that is used to register a view function for a</span></span><br><span class="line"><span class="string">    given URL rule.  This does the same thing as :meth:`add_url_rule`</span></span><br><span class="line"><span class="string">    but is intended for decorator usage.</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">decorator</span><span class="params">(f)</span>:</span></span><br><span class="line">        endpoint = options.pop(<span class="string">'endpoint'</span>, <span class="keyword">None</span>)</span><br><span class="line">        self.add_url_rule(rule, endpoint, f, **options)</span><br><span class="line">        <span class="keyword">return</span> f</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> decorator</span><br></pre></td></tr></table></figure>
+<p>route 方法内部也是调用 add_url_rule，只不过在外面包了一层装饰器的逻辑，这也验证了上面两种方法等价的说法。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add_url_rule</span><span class="params">(self, rule, endpoint=None, view_func=None, **options)</span>:</span></span><br><span class="line">    <span class="string">"""Connects a URL rule.  Works exactly like the :meth:`route`</span></span><br><span class="line"><span class="string">    decorator.  If a view_func is provided it will be registered with the</span></span><br><span class="line"><span class="string">    endpoint.</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line"></span><br><span class="line">    methods = options.pop(<span class="string">'methods'</span>, <span class="keyword">None</span>)</span><br><span class="line"></span><br><span class="line">    rule = self.url_rule_class(rule, methods=methods, **options)</span><br><span class="line">    self.url_map.add(rule)</span><br><span class="line">    <span class="keyword">if</span> view_func <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</span><br><span class="line">        old_func = self.view_functions.get(endpoint)</span><br><span class="line">        <span class="keyword">if</span> old_func <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span> <span class="keyword">and</span> old_func != view_func:</span><br><span class="line">            <span class="keyword">raise</span> AssertionError(<span class="string">'View function mapping is overwriting an '</span></span><br><span class="line">                                 <span class="string">'existing endpoint function: %s'</span> % endpoint)</span><br><span class="line">        self.view_functions[endpoint] = view_func</span><br></pre></td></tr></table></figure>
+<p>上面这段代码省略了处理 endpoint 和构建 methods 的部分逻辑，可以看到它主要做的事情就是更新 self.url_map 和 self.view_functions 两个变量。找到变量的定义，发现 url_map 是 werkzeug.routeing:Map 类的对象，rule 是 werkzeug.routing:Rule 类的对象，view_functions 就是一个字典。这和我们之前预想的并不一样，这里增加了 Rule 和 Map 的封装，还把 url 和 view_func 保存到了不同的地方。</p>
+<p>需要注意的是：每个视图函数的 endpoint 必须是不同的，否则会报 AssertionError。</p>
+<h3 id="werkzeug-路由逻辑"><a href="#werkzeug-路由逻辑" class="headerlink" title="werkzeug 路由逻辑"></a>werkzeug 路由逻辑</h3><p>事实上，flask 核心的路由逻辑是在 werkzeug 中实现的。所以在继续分析之前，我们先看一下 werkzeug 提供的路由功能。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>m = Map([</span><br><span class="line"><span class="meta">... </span>    Rule(<span class="string">'/'</span>, endpoint=<span class="string">'index'</span>),</span><br><span class="line"><span class="meta">... </span>    Rule(<span class="string">'/downloads/'</span>, endpoint=<span class="string">'downloads/index'</span>),</span><br><span class="line"><span class="meta">... </span>    Rule(<span class="string">'/downloads/&lt;int:id&gt;'</span>, endpoint=<span class="string">'downloads/show'</span>)</span><br><span class="line"><span class="meta">... </span>])</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>urls = m.bind(<span class="string">"example.com"</span>, <span class="string">"/"</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>urls.match(<span class="string">"/"</span>, <span class="string">"GET"</span>)</span><br><span class="line">(<span class="string">'index'</span>, &#123;&#125;)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>urls.match(<span class="string">"/downloads/42"</span>)</span><br><span class="line">(<span class="string">'downloads/show'</span>, &#123;<span class="string">'id'</span>: <span class="number">42</span>&#125;)</span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>urls.match(<span class="string">"/downloads"</span>)</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  ...</span><br><span class="line">RequestRedirect: http://example.com/downloads/</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>urls.match(<span class="string">"/missing"</span>)</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  ...</span><br><span class="line">NotFound: <span class="number">404</span> Not Found</span><br></pre></td></tr></table></figure>
+<p>上面的代码演示了 werkzeug 最核心的路由功能：添加路由规则（也可以使用 m.add），把路由表绑定到特定的环境（m.bind），匹配url（urls.match）。正常情况下返回对应的 endpoint 名字和参数字典，可能报重定向或者 404 异常。</p>
+<p>可以发现，endpoint 在路由过程中非常重要。werkzeug 的路由过程，其实是 url 到 endpoint 的转换：通过 url 找到处理该 url 的 endpoint。至于 endpoint 和 view function 之间的匹配关系，werkzeug 是不管的，而上面也看到 flask 是把这个存放到字典中的。</p>
+<h3 id="flask-路由实现"><a href="#flask-路由实现" class="headerlink" title="flask 路由实现"></a>flask 路由实现</h3><p>好，有了这些基础知识，我们回头看 dispatch_request，继续探寻路由匹配的逻辑：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">dispatch_request</span><span class="params">(self)</span>:</span></span><br><span class="line">    <span class="string">"""Does the request dispatching.  Matches the URL and returns the</span></span><br><span class="line"><span class="string">    return value of the view or error handler.  This does not have to</span></span><br><span class="line"><span class="string">    be a response object.  In order to convert the return value to a</span></span><br><span class="line"><span class="string">    proper response object, call :func:`make_response`.</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line"></span><br><span class="line">    req = _request_ctx_stack.top.request</span><br><span class="line">    <span class="keyword">if</span> req.routing_exception <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</span><br><span class="line">        self.raise_routing_exception(req)</span><br><span class="line">    rule = req.url_rule</span><br><span class="line"></span><br><span class="line">    <span class="comment"># dispatch to the handler for that endpoint</span></span><br><span class="line">    <span class="keyword">return</span> self.view_functions[rule.endpoint](**req.view_args)</span><br></pre></td></tr></table></figure>
+<p>这个方法做的事情就是找到请求对象 request，获取它的 endpoint，然后从 view_functions 找到对应 endpoint 的 view_func ，把请求参数传递过去，进行处理并返回。view_functions 中的内容，我们已经看到，是在构建路由规则的时候保存进去的；那请求中 req.url_rule 是什么保存进去的呢？它的格式又是什么？</p>
+<p>我们可以先这样理解：_request_ctx_stack.top.request 保存着当前请求的信息，在每次请求过来的时候，flask 会把当前请求的信息保存进去，这样我们就能在整个请求处理过程中使用它。至于怎么做到并发情况下信息不会相互干扰错乱，我们将在下一篇文章介绍。</p>
+<p>_request_ctx_stack 中保存的是 RequestContext 对象，它出现在 flask/ctx.py 文件中，和路由相关的逻辑如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RequestContext</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, app, environ, request=None)</span>:</span></span><br><span class="line">        self.app = app</span><br><span class="line">        self.request = request</span><br><span class="line">        self.url_adapter = app.create_url_adapter(self.request)</span><br><span class="line">        self.match_request()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">match_request</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""Can be overridden by a subclass to hook into the matching</span></span><br><span class="line"><span class="string">        of the request.</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            url_rule, self.request.view_args = \</span><br><span class="line">                self.url_adapter.match(return_rule=<span class="keyword">True</span>)</span><br><span class="line">            self.request.url_rule = url_rule</span><br><span class="line">        <span class="keyword">except</span> HTTPException <span class="keyword">as</span> e:</span><br><span class="line">            self.request.routing_exception = e</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Flask</span><span class="params">(_PackageBoundObject)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">create_url_adapter</span><span class="params">(self, request)</span>:</span></span><br><span class="line">        <span class="string">"""Creates a URL adapter for the given request.  The URL adapter</span></span><br><span class="line"><span class="string">        is created at a point where the request context is not yet set up</span></span><br><span class="line"><span class="string">        so the request is passed explicitly.</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        <span class="keyword">if</span> request <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</span><br><span class="line">            <span class="keyword">return</span> self.url_map.bind_to_environ(request.environ,</span><br><span class="line">                server_name=self.config[<span class="string">'SERVER_NAME'</span>])</span><br></pre></td></tr></table></figure>
+<p>在初始化的时候，会调用 app.create_url_adapter 方法，把 app 的 url_map 绑定到 WSGI environ 变量上（bind_to_environ 和之前的 bind 方法作用相同）。最后会调用 match_request 方法，这个方式调用了 url_adapter.match 方法，进行实际的匹配工作，返回匹配的 url rule。而我们之前使用的 url_rule.endpoint 就是匹配的 endpoint 值。</p>
+<p>整个 flask 的路由过程就结束了，总结一下大致的流程：</p>
+<ol>
+<li>通过 <a href="mailto:`@app.route" target="_blank" rel="noopener">`@app.route</a>或者app.add_url_rule` 注册应用 url 对应的处理函数</li>
+<li>每次请求过来的时候，会事先调用路由匹配的逻辑，把路由结果保存起来</li>
+<li>dispatch_request 根据保存的路由结果，调用对应的视图函数</li>
+</ol>
+<h3 id="match-实现"><a href="#match-实现" class="headerlink" title="match 实现"></a>match 实现</h3><p>虽然讲完了 flask 的路由流程，但是还没有讲到最核心的问题：werkzeug 中是怎么实现 match 方法的。Map 保存了 Rule 列表，match 的时候会依次调用其中的 rule.match 方法，如果匹配就找到了 match。Rule.match 方法的代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">match</span><span class="params">(self, path)</span>:</span></span><br><span class="line">        <span class="string">"""Check if the rule matches a given path. Path is a string in the</span></span><br><span class="line"><span class="string">        form ``"subdomain|/path(method)"`` and is assembled by the map.  If</span></span><br><span class="line"><span class="string">        the map is doing host matching the subdomain part will be the host</span></span><br><span class="line"><span class="string">        instead.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        If the rule matches a dict with the converted values is returned,</span></span><br><span class="line"><span class="string">        otherwise the return value is `None`.</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> self.build_only:</span><br><span class="line">            m = self._regex.search(path)</span><br><span class="line">            <span class="keyword">if</span> m <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</span><br><span class="line">                groups = m.groupdict()</span><br><span class="line"></span><br><span class="line">                result = &#123;&#125;</span><br><span class="line">                <span class="keyword">for</span> name, value <span class="keyword">in</span> iteritems(groups):</span><br><span class="line">                    <span class="keyword">try</span>:</span><br><span class="line">                        value = self._converters[name].to_python(value)</span><br><span class="line">                    <span class="keyword">except</span> ValidationError:</span><br><span class="line">                        <span class="keyword">return</span></span><br><span class="line">                    result[str(name)] = value</span><br><span class="line">                <span class="keyword">if</span> self.defaults:</span><br><span class="line">                    result.update(self.defaults)</span><br><span class="line"></span><br><span class="line">                <span class="keyword">return</span> result</span><br></pre></td></tr></table></figure>
+<p>它的逻辑是这样的：用实现 compile 的正则表达式去匹配给出的真实路径信息，把所有的匹配组件转换成对应的值，保存在字典中（这就是传递给视图函数的参数列表）并返回。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/08/21/flask源码分析1之应用启动/" rel="next" title="flask源码分析1之应用启动">
+                <i class="fa fa-chevron-left"></i> flask源码分析1之应用启动
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/11/15/sqlalchemy模型转字典的工具/" rel="prev" title="sqlalchemy模型转字典的工具">
+                sqlalchemy模型转字典的工具 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">tystudy</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#构建路由规则"><span class="nav-number">1.</span> <span class="nav-text">构建路由规则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#werkzeug-路由逻辑"><span class="nav-number">2.</span> <span class="nav-text">werkzeug 路由逻辑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#flask-路由实现"><span class="nav-number">3.</span> <span class="nav-text">flask 路由实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#match-实现"><span class="nav-number">4.</span> <span class="nav-text">match 实现</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">tystudy</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
