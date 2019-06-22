@@ -816,14 +816,14 @@ app = Flask(
       
         
           
-          python是采用以引用计数为主，标记和清除,分代收集(隔代回收,来解决循环引用的问题)的策略新创建的对象都会添加到0代链表上
+          python是采用以引用计数为主，标记和清除(来解决循环引用的问题),分代收集(隔代回收,以空间换时间的方法提高垃圾回收效率)的策略新创建的对象都会添加到0代链表上
 Garbage collection(GC)
 为新生成的对象分配内存
 识别那些垃圾对象
 从垃圾对象那回收内存
 
 引用计数机制：python里每一个东西都是对象，它们的核心就是一个struct：PyObject
-1234typedef struct_object &#123
+1234typedef 
           ...
           <!--noindex-->
           <div class="post-button text-center">
@@ -1080,7 +1080,7 @@ Garbage collection(GC)
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>
