@@ -86,7 +86,7 @@
 <meta property="og:site_name" content="tystudy的个人博客">
 <meta property="og:description" content="python是采用以引用计数为主，标记和清除(来解决循环引用的问题),分代收集(隔代回收,以空间换时间的方法提高垃圾回收效率)的策略新创建的对象都会添加到0代链表上 Garbage collection(GC) 为新生成的对象分配内存 识别那些垃圾对象 从垃圾对象那回收内存  引用计数机制：python里每一个东西都是对象，它们的核心就是一个struct：PyObject 1234typedef">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-06-22T11:10:28.719Z">
+<meta property="og:updated_time" content="2019-06-23T09:54:20.419Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="python垃圾回收机制">
 <meta name="twitter:description" content="python是采用以引用计数为主，标记和清除(来解决循环引用的问题),分代收集(隔代回收,以空间换时间的方法提高垃圾回收效率)的策略新创建的对象都会添加到0代链表上 Garbage collection(GC) 为新生成的对象分配内存 识别那些垃圾对象 从垃圾对象那回收内存  引用计数机制：python里每一个东西都是对象，它们的核心就是一个struct：PyObject 1234typedef">
@@ -318,7 +318,7 @@
 <li>循环引用</li>
 </ul>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">list1 = []</span><br><span class="line">list2 = []</span><br><span class="line">list1.append(list2)</span><br><span class="line">list2.append(list1)</span><br></pre></td></tr></table></figure>
-<p>list1与list2相互引用，如果不存在其他对象对它们的引用，list1与list2的引用计数也仍然为1，所占用的内存永远无法被回收，这将是致命的。<br>对于如今的强大硬件，缺点1尚可接受，但是循环引用导致内存泄露，注定python还将引入新的回收机制。(标记清除和分代收集)</p>
+<p>list1与list2相互引用，如果不存在其他对象对它们的引用，list1与list2的引用计数也仍然为1，所占用的内存永远无法被回收，这将是致命的。<br>对于如今的强大硬件，缺点1尚可接受，但是循环引用导致内存泄露，注定python还将引入新的回收机制。(标记清除)</p>
 <p>获取当前自动执行垃圾回收的计数器</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">print(gc.get_count())</span><br><span class="line">(<span class="number">278</span>, <span class="number">4</span>, <span class="number">1</span>)</span><br></pre></td></tr></table></figure>
 <p>获取垃圾回收自动执行的频率，新创建的对象会加入到0代链表，python自动会检查2个对象是否循环引用，把引用计数减1，剩下不为0的<br>加入到1代链表</p>
